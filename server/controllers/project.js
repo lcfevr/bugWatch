@@ -82,6 +82,7 @@ const projectObj = {
     const projectId = this.query.projectId;
     const userId = this.query.userId;
     const roleId = this.query.roleId;
+
     const newUser = {
       userId,
       roleId,
@@ -92,15 +93,52 @@ const projectObj = {
       if (err) return err;
       return data;
     });
+
     project.userList.push(newUser);
     const result = yield projectModel.update({ _id: projectId }, project, (err, res) => {
       if (err) return err;
-      console.log('res', res);
       return res;
     });
 
     this.body = result;
   },
+
+  * delUserFromProject () {
+    const projectId = this.query.projectId;
+    const userId = this.query.userId;
+    const roleId = this.query.roleId;
+
+    const newUser = {
+      userId,
+      roleId,
+    };
+
+    const project = yield projectModel.findOne({
+      _id: projectId,
+    }).sort({_id: -1}).exec((err, data) => {
+      if (err) return err;
+      return data;
+    });
+
+    project.userList.forEach((item,index) =>{
+        if(item.roleId == newUser.roleId && item.userId == newUser.userId) {
+          let user = project.userList.splice(index,1);
+          console.log('user:',user)
+        } else {
+
+        }
+    });
+
+    const result = yield projectModel.update({ _id: projectId }, project, (err, res) => {
+      if (err) return err;
+
+      return res;
+    });
+
+    this.body = result
+
+  },
+
   /**
    * 删除一个项目
    *
